@@ -64,11 +64,11 @@ from scipy.stats import chisquare
 # Interpretability libraries
 import shap
 
-# Visualization settings
-palette = {"Yes": "red", "No": "green"}
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
-def create_boxplot(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figure:
+def plot_boxplot(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figure:
     """Creates boxplots for numerical features of a dataset.
 
     Boxplots provide a good understanding of how data are spread out in our dataset.
@@ -85,7 +85,7 @@ def create_boxplot(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figure
     for i, (ax, curve) in enumerate(zip(axs.flat, list_of_columns)):
         sns.boxplot(
             y=data[curve],
-            color="darkorange",
+            color="#2ca02c",
             ax=ax,
             showmeans=True,
             meanprops={
@@ -94,17 +94,14 @@ def create_boxplot(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figure
                 "markeredgecolor": "black",
                 "markersize": "6",
             },
-            flierprops={"marker": "o", "markeredgecolor": "darkgreen"},
+            flierprops={"marker": "o", "markeredgecolor": "maroon"},
         )
         ax.set_title(list_of_columns[i])
         ax.set_ylabel("")
     plt.show()
 
 
-#    return fig
-
-
-def create_histplot(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figure:
+def plot_histogram(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figure:
     """Creates histograms for numerical features of a dataset.
 
     Histograms provide a good understanding of how data are distributed.
@@ -121,7 +118,9 @@ def create_histplot(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figur
     )
 
     for i, ax in enumerate(axes.flatten()):
-        sns.histplot(data=data, x=data[list_of_columns[i]], ax=ax, kde=True)
+        sns.histplot(
+            data=data, x=data[list_of_columns[i]], ax=ax, kde=True, color="#2ca02c"
+        )
         ax.ticklabel_format(style="plain")
         ax.set_xlabel("")
         ax.set_title(f"{' '.join(list_of_columns[i].split('_'))}", fontsize=13, y=1.03)
@@ -134,7 +133,7 @@ def create_histplot(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figur
 #    return fig
 
 
-def percentage_plot(data: pd.DataFrame, feature_name: str) -> None:
+def plot_percentage_distribution(data: pd.DataFrame, feature_name: str) -> None:
     """Creates a percentage plot showing the distribution of a feature in relation to stroke occurrence.
 
     The function calculates the percentages of patients with and without stroke for the given feature
@@ -158,7 +157,7 @@ def percentage_plot(data: pd.DataFrame, feature_name: str) -> None:
     percentages.sort_values(by="nr_of_patients", ascending=False, inplace=True)
 
     fig, ax = plt.subplots(figsize=(6, 3))
-    for stroke, color in zip(["No", "Yes"], ["green", "red"]):
+    for stroke, color in zip(["No", "Yes"], ["#2ca02c", "maroon"]):
         subset = percentages[percentages["stroke"] == stroke]
         rects = ax.barh(
             subset[feature_name],
@@ -188,16 +187,17 @@ def percentage_plot(data: pd.DataFrame, feature_name: str) -> None:
                     "{:.1f}%".format(width),
                     ha="left",
                     va="center",
-                    color="red",
+                    color="maroon",
                     fontsize=12,
                 )
     ax.legend(title="Stroke", loc="upper right")
-    ax.set_xlabel("Percentage of patients (%)")
-    ax.set_title(f"Percentage of patients with stroke by {feature_name}")
+    ax.set_xlabel("Percentage of People (%)")
+    ax.set_title(f"Percentage of People With Stroke by {feature_name.capitalize()}")
+    sns.despine()
     plt.show()
 
 
-def show_distribution(data: pd.DataFrame, output: str, column: str) -> None:
+def display_data_distribution(data: pd.DataFrame, output: str, column: str) -> None:
     """Displays distribution of a specific column, split by output variable (stroke status).
 
     This function creates two side-by-side histograms of the specified column's data,
@@ -209,14 +209,20 @@ def show_distribution(data: pd.DataFrame, output: str, column: str) -> None:
         column (str): The specific column to display distribution for.
     """
     f, ax = plt.subplots(1, 2, figsize=(12, 6))
-    sns.histplot(data[data[output] == "No"][column], ax=ax[0], kde=True, color="green")
-    ax[0].set_title(f"{column} for people who did not have stroke")
-    sns.histplot(data[data[output] == "Yes"][column], ax=ax[1], kde=True, color="red")
-    ax[1].set_title(f"{column} for people who had stroke")
+    sns.histplot(
+        data[data[output] == "No"][column], ax=ax[0], kde=True, color="#2ca02c"
+    )
+    ax[0].set_title(f"{column} For People Without Stroke".title())
+    sns.despine(ax=ax[0])
+    sns.histplot(
+        data[data[output] == "Yes"][column], ax=ax[1], kde=True, color="maroon"
+    )
+    ax[1].set_title(f"{column} For People Who Had a Stroke".title())
+    sns.despine(ax=ax[1])
     plt.show()
 
 
-def calculate_roc_auc(
+def compute_roc_auc_score(
     pipelines: List, X_train: pd.DataFrame, y_train: pd.Series
 ) -> Tuple[List, List, pd.DataFrame]:
     """Calculates the ROC AUC score for each pipeline using cross-validation.
@@ -254,35 +260,7 @@ def calculate_roc_auc(
     return model_name, roc_auc, models_comparison
 
 
-def create_countplot(data: pd.DataFrame, list_of_columns: List[str]) -> None:
-    """
-    Creates countplots for categorical features of a dataset.
-
-    Countplots offer an understanding of how many instances are represented by each specific discrete feature.
-    In other words, it provides frequency counts of categorical features.
-
-    Args:
-        data (pd.DataFrame): The input dataset.
-        list_of_columns (List[str]): The list of features to plot countplots for.
-
-    Returns:
-        None: The function returns None. It shows the plot using plt.show implicitly.
-    """
-    fig, axes = plt.subplots(1, len(list_of_columns), figsize=(26, 6))
-    for i, ax in enumerate(axes.flatten()):
-        sns.countplot(
-            data=data,
-            x=data[list_of_columns[i]],
-            ax=ax,
-            order=data[list_of_columns[i]].value_counts().index,
-        )
-        ax.set_xlabel("")
-        ax.set_title(f"{' '.join(list_of_columns[i].split('_'))}", fontsize=13, y=1.03)
-    sns.despine(left=True)
-    plt.show()
-
-
-def create_pie_charts(data: pd.DataFrame, list_of_columns: List[str]) -> None:
+def plot_pie_charts(data: pd.DataFrame, list_of_columns: List[str]) -> None:
     """
     Creates pie charts for categorical features of a dataset.
 
@@ -305,18 +283,25 @@ def create_pie_charts(data: pd.DataFrame, list_of_columns: List[str]) -> None:
     if n_columns == 1:
         axes = np.array([axes])
 
+    colors = [
+        "#2ca02c",
+        "#dbc8b9",
+        "#799854",
+        "#5c8c3c",
+    ]  # Define the colors for the pie charts
+
     for ax, column in zip(axes.flatten(), list_of_columns):
         value_counts = data[column].value_counts()
         labels = value_counts.index
         values = value_counts.values
 
-        ax.pie(values, labels=labels, autopct="%1.1f%%")
+        ax.pie(values, labels=labels, autopct="%1.1f%%", colors=colors)
         ax.set_title(column.replace("_", " "), fontsize=13, y=1.03)
 
     plt.show()
 
 
-def create_confusion_matrix(
+def generate_confusion_matrix(
     dict_of_models: Dict[str, any], X_test: np.ndarray, y_test: np.ndarray
 ) -> plt.figure:
     """
@@ -336,7 +321,12 @@ def create_confusion_matrix(
 
     for i, (key, value) in enumerate(dict_of_models.items()):
         y_pred = cross_val_predict(value, X_test, y_test, cv=6)
-        sns.heatmap(confusion_matrix(y_test, y_pred), ax=ax[i], annot=True, fmt="2.0f")
+        sns.heatmap(
+            confusion_matrix(y_test, y_pred),
+            ax=ax[i],
+            annot=True,
+            fmt="2.0f",
+        )
         ax[i].set_title(f"Matrix for {key}")
 
     plt.subplots_adjust(
@@ -345,73 +335,7 @@ def create_confusion_matrix(
     plt.show()
 
 
-#    return fig
-
-
-def create_confusion_matrix_plots(
-    dict_of_models: Dict[str, Any], X_test: np.ndarray, y_test: np.ndarray
-) -> plt.Figure:
-    """
-    Function that creates confusion matrix plots for machine learning model outcomes.
-
-    Args:
-        dict_of_models: Dictionary of models with names as keys and models as values.
-        X_test: numpy array of test data.
-        y_test: numpy array of test labels.
-
-    Returns:
-        Confusion matrix plots.
-    """
-
-    fig, ax = plt.subplots(1, len(dict_of_models), figsize=(24, 4))
-
-    for i, (key, model) in enumerate(dict_of_models.items()):
-        y_pred = cross_val_predict(model, X_test, y_test, cv=6)
-        conf_mat = confusion_matrix(y_test, y_pred)
-        sns.heatmap(conf_mat, ax=ax[i], annot=True, fmt="2.0f")
-        ax[i].set_title(f"Matrix for {key}")
-
-    plt.subplots_adjust(
-        left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4
-    )
-    plt.show()
-
-
-#    return fig
-
-
-def print_confusion_matrix(
-    dict_of_models: Dict[str, Any], X_test: np.ndarray, y_test: np.ndarray
-) -> None:
-    """
-    Function that prints confusion matrices for machine learning model outcomes.
-
-    Args:
-        dict_of_models: Dictionary of models with names as keys and models as values.
-        X_test: numpy array of test data.
-        y_test: numpy array of test labels.
-
-    Returns:
-        None
-    """
-
-    for key, model in dict_of_models.items():
-        y_pred = cross_val_predict(model, X_test, y_test, cv=6)
-        conf_mat = confusion_matrix(y_test, y_pred)
-
-        # Print text representation of confusion matrix
-        print(f"\nConfusion Matrix for {key}:")
-        for j in range(conf_mat.shape[0]):
-            row_str = " ".join(
-                [f"{conf_mat[j, k]:>5}" for k in range(conf_mat.shape[1])]
-            )
-            print(row_str)
-
-        col_names = [f"Pred {x}" for x in range(conf_mat.shape[1])]
-        print(" ".join([f"{name:>5}" for name in col_names]))
-
-
-def calculate_roc_auc_models(
+def compute_roc_auc_for_models(
     models: List, X_train: np.array, y_train: np.array, classifiers: List
 ) -> pd.DataFrame:
     """Calculate ROC AUC for multiple models and return a sorted dataframe with the results.
@@ -441,7 +365,7 @@ def calculate_roc_auc_models(
     return sorted_df
 
 
-def create_confusion_matrix_for_list(
+def generate_confusion_matrix_for_models(
     models_list: List, X_test: np.array, y_test: np.array
 ) -> None:
     """Create confusion matrices for machine learning model outcomes.
@@ -478,7 +402,7 @@ def create_confusion_matrix_for_list(
     plt.show()
 
 
-def calculate_predictions(model, X_train, X_test, y_train):
+def predict_using_model(model, X_train, X_test, y_train):
     """Train the model using the training data and predict the labels of the test data.
 
     Args:
@@ -495,7 +419,9 @@ def calculate_predictions(model, X_train, X_test, y_train):
     return y_pred
 
 
-def create_heatmap(df: pd.DataFrame, size_of_figure: Tuple[int, int]) -> plt.figure:
+def plot_correlation_heatmap(
+    df: pd.DataFrame, size_of_figure: Tuple[int, int]
+) -> plt.figure:
     """Create a correlation heatmap from a dataframe.
 
     Args:
@@ -510,9 +436,12 @@ def create_heatmap(df: pd.DataFrame, size_of_figure: Tuple[int, int]) -> plt.fig
 
     mask = np.triu(np.ones_like(corr, dtype=bool))
 
-    f, ax = plt.subplots(figsize=(size_of_figure))
+    f, ax = plt.subplots(figsize=size_of_figure)
 
-    cmap = sns.color_palette("coolwarm", as_cmap=True)
+    # Define your custom color palette
+    colors = ["#f2f5ee", "#d7e0cc", "#bcccaa", "#a1b787", "#86a265"]
+    cmap = sns.color_palette(colors, as_cmap=True)
+
     heatmap = sns.heatmap(
         corr,
         mask=mask,
@@ -526,21 +455,20 @@ def create_heatmap(df: pd.DataFrame, size_of_figure: Tuple[int, int]) -> plt.fig
         annot=True,
     )
 
+    plt.xticks(rotation=45)
     heatmap.set_title(
-        f"Correlation heatmap of data attributes",
+        "Correlation Heatmap of Data Attributes",
         fontdict={"fontsize": 16},
         pad=12,
     )
     plt.xlabel("")
     plt.ylabel("")
+    plt.tight_layout()
     plt.show()
 
 
-#    return plt.gcf()
-
-
 def plot_cat_boost(col, categorical_data):
-    palette = ["green", "red"]
+    palette = ["#2ca02c", "maroon"]
 
     data_group = categorical_data.groupby([col, "stroke"]).size().unstack(fill_value=0)
 
@@ -552,7 +480,7 @@ def plot_cat_boost(col, categorical_data):
         width = rect.get_width()
         if i < len(ax.patches) / 2:  # 'No' labels
             ax.text(
-                rect.get_x() + 5,  # Add a small value to move text to the right
+                rect.get_x() + 5,
                 rect.get_y() + rect.get_height() / 2,
                 "%d" % int(width),
                 ha="left",
@@ -562,13 +490,12 @@ def plot_cat_boost(col, categorical_data):
             )
         else:  # 'Yes' labels
             ax.text(
-                rect.get_x()
-                - 5,  # Subtract a small value to move text to the left of the bar
+                rect.get_x() - 5,
                 rect.get_y() + rect.get_height() / 2,
                 "%d" % int(width),
                 ha="right",
                 va="center",
-                color="red",
+                color="maroon",
                 fontsize=12,
             )
 
@@ -578,4 +505,5 @@ def plot_cat_boost(col, categorical_data):
     plt.title(f"Stroke Count in {col}")
     plt.xlabel("Counts")
     plt.ylabel(col)
+    sns.despine()
     plt.show()
