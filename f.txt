@@ -1,0 +1,15 @@
+create_boxplot
+create_histplot
+percentage_plot
+show_distribution
+calculate_roc_auc
+create_countplot
+create_pie_charts
+create_confusion_matrix
+create_confusion_matrix_plots
+print_confusion_matrix
+calculate_roc_auc_models
+create_confusion_matrix_for_list
+calculate_predictions
+create_heatmap
+plot_cat_boost

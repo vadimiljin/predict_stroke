@@ -66,14 +66,6 @@ import shap
 
 # Visualization settings
 palette = {"Yes": "red", "No": "green"}
-# Configuration
-import warnings
-
-warnings.filterwarnings("ignore")
-from sklearn.exceptions import DataConversionWarning
-
-warnings.filterwarnings("ignore", category=UserWarning, module="sklearn")
-warnings.filterwarnings("ignore", category=DataConversionWarning)
 
 
 def create_boxplot(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figure:
@@ -106,6 +98,7 @@ def create_boxplot(data: pd.DataFrame, list_of_columns: List[str]) -> plt.figure
         )
         ax.set_title(list_of_columns[i])
         ax.set_ylabel("")
+    plt.show()
 
 
 #    return fig
@@ -201,6 +194,7 @@ def percentage_plot(data: pd.DataFrame, feature_name: str) -> None:
     ax.legend(title="Stroke", loc="upper right")
     ax.set_xlabel("Percentage of patients (%)")
     ax.set_title(f"Percentage of patients with stroke by {feature_name}")
+    plt.show()
 
 
 def show_distribution(data: pd.DataFrame, output: str, column: str) -> None:
@@ -285,6 +279,7 @@ def create_countplot(data: pd.DataFrame, list_of_columns: List[str]) -> None:
         ax.set_xlabel("")
         ax.set_title(f"{' '.join(list_of_columns[i].split('_'))}", fontsize=13, y=1.03)
     sns.despine(left=True)
+    plt.show()
 
 
 def create_pie_charts(data: pd.DataFrame, list_of_columns: List[str]) -> None:
@@ -347,6 +342,7 @@ def create_confusion_matrix(
     plt.subplots_adjust(
         left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4
     )
+    plt.show()
 
 
 #    return fig
@@ -537,6 +533,7 @@ def create_heatmap(df: pd.DataFrame, size_of_figure: Tuple[int, int]) -> plt.fig
     )
     plt.xlabel("")
     plt.ylabel("")
+    plt.show()
 
 
 #    return plt.gcf()
@@ -576,7 +573,7 @@ def plot_cat_boost(col, categorical_data):
             )
 
     # Display value counts
-    display(data_group)
+    print(data_group)
 
     plt.title(f"Stroke Count in {col}")
     plt.xlabel("Counts")
