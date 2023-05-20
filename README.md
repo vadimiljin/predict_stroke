@@ -38,13 +38,13 @@ After extensive experimentation, the **XGBoost** model was found to deliver the 
 - Learning_rate = 0.01
 - Colsample_bytree = 0.7
 - Colsample_bylevel = 0.6
-- Scale_pos_weight = 20
+- Scale_pos_weight = 17
 
 Performance metrics:
 
-- Positive class: Precision - 14.13%, Recall - 85.48%
-- Negative class: Precision - 99.17%, Recall - 77.02%
-- Overall Accuracy: 77.38%.
+- Positive class: Precision - 14.32%, Recall - 82.25%
+- Negative class: Precision - 99%, Recall - 78.22%
+- Overall Accuracy: 76.35%.
 
 The most impactful features in predicting stroke were identified as age, average glucose level, unmarried status, unknown smoking status, hypertension, and heart disease.
 
@@ -68,14 +68,13 @@ You can run the API locally by following these steps:
    ```
    git clone https://github.com/vadimiljin/predict_stroke.git
    ```
-
-2. Navigate into the directory:
-   ```
-   cd app
-   ```
-3. Install the requirements:
+2. Install the requirements:
    ```
    pip install -r requirements.txt
+   ```
+3. Navigate into the directory:
+   ```
+   cd app
    ```
 4. Run the API:
    ```
@@ -84,9 +83,9 @@ You can run the API locally by following these steps:
 
 Now, the API is running on your local machine at `http://localhost:8000`.
 
-### Sample API Request:
+### Sample API Request
 
-CURL
+With CURL:
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -d '{
@@ -103,7 +102,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
 }' http://localhost:8000/predict/
 ```
 
-PYTHON
+With Python:
 
 ```python
 import requests
@@ -127,7 +126,7 @@ response = requests.post(url, json=data)
 print(response.json())
 ```
 
-### Sample API Response:
+### Sample API Response
 
 ```json
 {'label': 0, 'probability': 0.44200000166893005}
