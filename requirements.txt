@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-pydantic
-pandas
-numpy
-scikit-learn
-pickle-mixin
-xgboost
-catboost

@@ -71,7 +71,7 @@ You can run the API locally by following these steps:
 
 2. Navigate into the directory:
    ```
-   cd predict_stroke
+   cd app
    ```
 3. Install the requirements:
    ```
@@ -86,13 +86,51 @@ Now, the API is running on your local machine at `http://localhost:8000`.
 
 ### Sample API Request:
 
+CURL
 
 ```bash
-curl -X POST "http://localhost:8000/predict" \
--H "accept: application/json" \
--H "Content-Type: application/json" \
--d "[{\"gender\":\"Male\",\"age\":65.0,\"hypertension\":1,\"heart_disease\":0,\"ever_married\":\"Yes\",\"work_type\":\"Private\",\"residence_type\":\"Urban\",\"avg_glucose_level\":112.15,\"bmi\":32.5,\"smoking_status\":\"formerly smoked\"}]"
-
+curl -X POST -H "Content-Type: application/json" -d '{
+    "age": 50,
+    "gender": "Male",
+    "hypertension": 0,
+    "heart_disease": 0,
+    "ever_married": "Yes",
+    "work_type": "Private",
+    "residence_type": "Urban",
+    "avg_glucose_level": 75.0,
+    "bmi": 25.0,
+    "smoking_status": "formerly smoked"
+}' http://localhost:8000/predict/
 ```
 
-This request will return a prediction where '1' signifies a high risk of stroke and '0' signifies a low risk.
+PYTHON
+
+```python
+import requests
+
+url = "http://localhost:8000/predict/"
+
+data = {
+    "age": 50,
+    "gender": "Male",
+    "hypertension": 0,
+    "heart_disease": 0,
+    "ever_married": "Yes",
+    "work_type": "Private",
+    "residence_type": "Urban",
+    "avg_glucose_level": 75.0,
+    "bmi": 25.0,
+    "smoking_status": "formerly smoked",
+}
+
+response = requests.post(url, json=data)
+print(response.json())
+```
+
+### Sample API Response:
+
+```json
+{'label': 0, 'probability': 0.44200000166893005}
+```
+- The `label` key represents the predicted label or class. In this case, the value of 0 suggests that the model predicted a negative outcome or a low likelihood of stroke.
+- The `probability` key provides the probability associated with the predicted label. The value of 0.44200000166893005 indicates the estimated probability of the predicted outcome. In this case, it suggests that there is a 44.2% probability of the negative outcome (no stroke) according to my model.
